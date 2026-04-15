@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Escalation Detector</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #0f172a;
+        }
+
+        .subtitle {
+            color: #64748b;
+            margin-bottom: 40px;
+            font-size: 1.1rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #334155;
+        }
+
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        input[type="text"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 150px;
+        }
+
+        .btn {
+            background: #3b82f6;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            width: 100%;
+        }
+
+        .btn:hover {
+            background: #2563eb;
+        }
+
+        .btn:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        .result-card {
+            margin-top: 30px;
+            padding: 25px;
+            border-radius: 12px;
+            display: none;
+        }
+
+        .result-card.show {
+            display: block;
+        }
+
+        .result-card.escalate {
+            background: #fee2e2;
+            border: 2px solid #fecaca;
+        }
+
+        .result-card.no-escalate {
+            background: #dcfce7;
+            border: 2px solid #bbf7d0;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+        }
+
+        .badge.escalate {
+            background: #dc2626;
+            color: white;
+        }
+
+        .badge.no-escalate {
+            background: #16a34a;
+            color: white;
+        }
+
+        .reason {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            color: #1e293b;
+        }
+
+        .ticket-info {
+            font-size: 0.9rem;
+            color: #64748b;
+        }
+
+        .logs-section {
+            margin-top: 50px;
+        }
+
+        .logs-section h2 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: #0f172a;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        thead {
+            background: #f1f5f9;
+        }
+
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #475569;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 15px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-badge.escalate {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .status-badge.no-escalate {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #fee2e2;
+            color: #dc2626;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Escalation Detector</h1>
+        <p class="subtitle">AI-powered support conversation escalation analysis</p>
+
+        <div class="card">
+            <form id="escalationForm">
+                <div class="form-group">
+                    <label for="ticketId">Ticket ID</label>
+                    <input 
+                        type="text" 
+                        id="ticketId" 
+                        name="ticketId" 
+                        placeholder="e.g. TICKET-001" 
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="conversation">Support Conversation</label>
+                    <textarea 
+                        id="conversation" 
+                        name="conversation" 
+                        rows="8" 
+                        placeholder="Paste the full support conversation here..." 
+                        required
+                    ></textarea>
+                </div>
+
+                <button type="submit" class="btn" id="submitBtn">
+                    Check Escalation
+                </button>
+            </form>
+
+            <div class="error" id="errorMessage"></div>
+
+            <div class="result-card" id="resultCard">
+                <div class="badge" id="resultBadge"></div>
+                <div class="reason" id="resultReason"></div>
+                <div class="ticket-info" id="resultTicket"></div>
+            </div>
+        </div>
+
+        <div class="logs-section">
+            <h2>Recent Escalation Logs</h2>
+            <div class="card" style="padding: 0; overflow: hidden;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Ticket ID</th>
+                            <th>Escalate</th>
+                            <th>Reason</th>
+                            <th>Time</th>
+                        </tr>
+                    </thead>
+                    <tbody id="logsTableBody">
+                        <tr>
+                            <td colspan="4" style="text-align: center; color: #94a3b8;">Loading logs...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:8000';
+
+        // Load logs when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            loadLogs();
+        });
+
+        // Handle form submission
+        document.getElementById('escalationForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const ticketId = document.getElementById('ticketId').value;
+            const conversation = document.getElementById('conversation').value;
+            const submitBtn = document.getElementById('submitBtn');
+            const resultCard = document.getElementById('resultCard');
+            const errorMessage = document.getElementById('errorMessage');
+
+            // Hide previous results and errors
+            resultCard.classList.remove('show');
+            errorMessage.classList.remove('show');
+
+            // Show loading state
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="loading"></span>Analyzing...';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/escalation/check`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        ticket_id: ticketId,
+                        conversation: conversation
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to check escalation');
+                }
+
+                const data = await response.json();
+
+                // Display result
+                displayResult(data);
+
+                // Reload logs to show the new entry
+                loadLogs();
+
+            } catch (error) {
+                errorMessage.textContent = 'Error: ' + error.message;
+                errorMessage.classList.add('show');
+            } finally {
+                // Reset button
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Check Escalation';
+            }
+        });
+
+        // Display escalation result
+        function displayResult(data) {
+            const resultCard = document.getElementById('resultCard');
+            const resultBadge = document.getElementById('resultBadge');
+            const resultReason = document.getElementById('resultReason');
+            const resultTicket = document.getElementById('resultTicket');
+
+            if (data.escalate) {
+                resultCard.className = 'result-card show escalate';
+                resultBadge.className = 'badge escalate';
+                resultBadge.textContent = 'ESCALATE';
+            } else {
+                resultCard.className = 'result-card show no-escalate';
+                resultBadge.className = 'badge no-escalate';
+                resultBadge.textContent = 'NO ESCALATION';
+            }
+
+            resultReason.textContent = data.reason;
+            resultTicket.textContent = `Ticket: ${data.ticket_id} | Log ID: ${data.log_id}`;
+        }
+
+        // Load and display logs
+        async function loadLogs() {
+            const tableBody = document.getElementById('logsTableBody');
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/escalation/logs`);
+                
+                if (!response.ok) {
+                    throw new Error('Failed to load logs');
+                }
+
+                const logs = await response.json();
+
+                if (logs.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #94a3b8;">No logs yet</td></tr>';
+                    return;
+                }
+
+                // Display only the last 10 logs
+                const recentLogs = logs.slice(0, 10);
+                
+                tableBody.innerHTML = recentLogs.map(log => {
+                    const escalateClass = log.escalate ? 'escalate' : 'no-escalate';
+                    const escalateText = log.escalate ? 'YES' : 'NO';
+                    const timestamp = new Date(log.created_at).toLocaleString();
+
+                    return `
+                        <tr>
+                            <td><strong>${log.ticket_id}</strong></td>
+                            <td><span class="status-badge ${escalateClass}">${escalateText}</span></td>
+                            <td>${log.reason}</td>
+                            <td style="color: #64748b; font-size: 0.9rem;">${timestamp}</td>
+                        </tr>
+                    `;
+                }).join('');
+
+            } catch (error) {
+                tableBody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: #dc2626;">Error loading logs: ${error.message}</td></tr>`;
+            }
+        }
+    </script>
+</body>
+</html>
