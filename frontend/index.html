@@ -3,426 +3,440 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Escalation Detector</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>Escalation Detector — Pipeline Edition</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
+        
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f8fafc;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f8fafc;
             color: #1e293b;
-            padding: 20px;
             line-height: 1.6;
         }
-
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        header p {
+            opacity: 0.9;
+        }
+        
         .container {
             max-width: 1200px;
-            margin: 0 auto;
+            margin: 2rem auto;
+            padding: 0 1rem;
         }
-
-        h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 10px;
-            color: #0f172a;
-        }
-
-        .subtitle {
-            color: #64748b;
-            margin-bottom: 40px;
-            font-size: 1.1rem;
-        }
-
-        .card {
+        
+        .section {
             background: white;
-            border-radius: 12px;
-            padding: 30px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            margin-bottom: 30px;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 8px;
+        
+        .section h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
             color: #334155;
         }
-
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #475569;
+        }
+        
         input[type="text"],
+        input[type="number"],
+        input[type="email"],
         textarea {
             width: 100%;
-            padding: 12px;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            font-family: 'Inter', sans-serif;
+            padding: 0.75rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
             font-size: 1rem;
+            font-family: inherit;
             transition: border-color 0.2s;
         }
-
-        input[type="text"]:focus,
+        
+        input:focus,
         textarea:focus {
             outline: none;
-            border-color: #3b82f6;
+            border-color: #667eea;
         }
-
+        
         textarea {
             resize: vertical;
-            min-height: 150px;
+            min-height: 100px;
         }
-
-        .btn {
-            background: #3b82f6;
+        
+        button {
+            background: #667eea;
             color: white;
-            padding: 12px 24px;
             border: none;
-            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
             font-size: 1rem;
-            font-weight: 600;
+            font-weight: 500;
             cursor: pointer;
             transition: background 0.2s;
-            width: 100%;
         }
-
-        .btn:hover {
-            background: #2563eb;
+        
+        button:hover {
+            background: #5568d3;
         }
-
-        .btn:disabled {
-            background: #94a3b8;
-            cursor: not-allowed;
-        }
-
-        .result-card {
-            margin-top: 30px;
-            padding: 25px;
-            border-radius: 12px;
-            display: none;
-        }
-
-        .result-card.show {
-            display: block;
-        }
-
-        .result-card.escalate {
-            background: #fee2e2;
-            border: 2px solid #fecaca;
-        }
-
-        .result-card.no-escalate {
-            background: #dcfce7;
-            border: 2px solid #bbf7d0;
-        }
-
+        
         .badge {
             display: inline-block;
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-weight: 700;
-            font-size: 1.2rem;
-            margin-bottom: 15px;
-        }
-
-        .badge.escalate {
-            background: #dc2626;
-            color: white;
-        }
-
-        .badge.no-escalate {
-            background: #16a34a;
-            color: white;
-        }
-
-        .reason {
-            font-size: 1.1rem;
-            margin-bottom: 10px;
-            color: #1e293b;
-        }
-
-        .ticket-info {
-            font-size: 0.9rem;
-            color: #64748b;
-        }
-
-        .logs-section {
-            margin-top: 50px;
-        }
-
-        .logs-section h2 {
-            font-size: 1.8rem;
-            margin-bottom: 20px;
-            color: #0f172a;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        }
-
-        thead {
-            background: #f1f5f9;
-        }
-
-        th {
-            padding: 15px;
-            text-align: left;
-            font-weight: 600;
-            color: #475569;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        td {
-            padding: 15px;
-            border-top: 1px solid #e2e8f0;
-        }
-
-        .status-badge {
-            display: inline-block;
-            padding: 4px 12px;
+            padding: 0.25rem 0.75rem;
             border-radius: 4px;
-            font-size: 0.85rem;
-            font-weight: 600;
+            font-size: 0.875rem;
+            font-weight: 500;
         }
-
-        .status-badge.escalate {
+        
+        .badge-escalate {
             background: #fee2e2;
             color: #dc2626;
         }
-
-        .status-badge.no-escalate {
+        
+        .badge-no-escalate {
             background: #dcfce7;
             color: #16a34a;
         }
-
-        .loading {
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 0.8s linear infinite;
-            margin-right: 8px;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .error {
-            background: #fee2e2;
-            color: #dc2626;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 20px;
+        
+        .result {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #f1f5f9;
+            border-radius: 6px;
             display: none;
         }
-
-        .error.show {
+        
+        .result.show {
             display: block;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        
+        th {
+            background: #f1f5f9;
+            padding: 0.75rem;
+            text-align: left;
+            font-weight: 600;
+            color: #475569;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        
+        td {
+            padding: 0.75rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        tr:hover {
+            background: #f8fafc;
+        }
+        
+        .timeline {
+            margin-top: 1rem;
+        }
+        
+        .timeline-item {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background: #f8fafc;
+            border-left: 3px solid #667eea;
+            border-radius: 4px;
+        }
+        
+        .timeline-item h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: #334155;
+        }
+        
+        .error {
+            color: #dc2626;
+            margin-top: 0.5rem;
         }
     </style>
 </head>
 <body>
+    <header>
+        <h1>🚨 Escalation Detector — Pipeline Edition</h1>
+        <p>Stage 5: LLM-Powered Support Ticket Escalation Analysis</p>
+    </header>
+    
     <div class="container">
-        <h1>Escalation Detector</h1>
-        <p class="subtitle">AI-powered support conversation escalation analysis</p>
-
-        <div class="card">
-            <form id="escalationForm">
+        <!-- Pipeline Mode Section -->
+        <div class="section">
+            <h2>📋 From Ticket ID (Pipeline Mode)</h2>
+            <form onsubmit="submitPipelineCheck(event)">
                 <div class="form-group">
-                    <label for="ticketId">Ticket ID</label>
-                    <input 
-                        type="text" 
-                        id="ticketId" 
-                        name="ticketId" 
-                        placeholder="e.g. TICKET-001" 
-                        required
-                    >
+                    <label for="pipeline-ticket-id">Ticket ID (from Stage 4)</label>
+                    <input type="number" id="pipeline-ticket-id" required>
                 </div>
-
-                <div class="form-group">
-                    <label for="conversation">Support Conversation</label>
-                    <textarea 
-                        id="conversation" 
-                        name="conversation" 
-                        rows="8" 
-                        placeholder="Paste the full support conversation here..." 
-                        required
-                    ></textarea>
-                </div>
-
-                <button type="submit" class="btn" id="submitBtn">
-                    Check Escalation
-                </button>
+                <button type="submit">Check Escalation</button>
             </form>
-
-            <div class="error" id="errorMessage"></div>
-
-            <div class="result-card" id="resultCard">
-                <div class="badge" id="resultBadge"></div>
-                <div class="reason" id="resultReason"></div>
-                <div class="ticket-info" id="resultTicket"></div>
-            </div>
+            <div id="pipeline-result" class="result"></div>
         </div>
-
-        <div class="logs-section">
-            <h2>Recent Escalation Logs</h2>
-            <div class="card" style="padding: 0; overflow: hidden;">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Ticket ID</th>
-                            <th>Escalate</th>
-                            <th>Reason</th>
-                            <th>Time</th>
-                        </tr>
-                    </thead>
-                    <tbody id="logsTableBody">
-                        <tr>
-                            <td colspan="4" style="text-align: center; color: #94a3b8;">Loading logs...</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+        
+        <!-- Manual Check Section -->
+        <div class="section">
+            <h2>✍️ Manual Check</h2>
+            <form onsubmit="submitManualCheck(event)">
+                <div class="form-group">
+                    <label for="manual-ticket-id">Ticket ID</label>
+                    <input type="text" id="manual-ticket-id" required>
+                </div>
+                <div class="form-group">
+                    <label for="manual-email">Customer Email</label>
+                    <input type="email" id="manual-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="manual-conversation">Conversation</label>
+                    <textarea id="manual-conversation" required></textarea>
+                </div>
+                <button type="submit">Check Escalation</button>
+            </form>
+            <div id="manual-result" class="result"></div>
+        </div>
+        
+        <!-- Pipeline Trace Section -->
+        <div class="section">
+            <h2>🔍 Pipeline Trace</h2>
+            <form onsubmit="loadPipelineTrace(event)">
+                <div class="form-group">
+                    <label for="trace-email">Customer Email</label>
+                    <input type="email" id="trace-email" required>
+                </div>
+                <button type="submit">Trace Journey</button>
+            </form>
+            <div id="trace-result" class="result"></div>
+        </div>
+        
+        <!-- Recent Logs Section -->
+        <div class="section">
+            <h2>📊 Recent Escalation Logs</h2>
+            <button onclick="loadRecentLogs()">Refresh</button>
+            <table id="logs-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Ticket ID</th>
+                        <th>Email</th>
+                        <th>Escalate</th>
+                        <th>Reason</th>
+                        <th>Created At</th>
+                    </tr>
+                </thead>
+                <tbody id="logs-tbody">
+                    <tr><td colspan="6" style="text-align: center;">Loading...</td></tr>
+                </tbody>
+            </table>
         </div>
     </div>
-
+    
     <script>
-        const API_BASE_URL = 'http://localhost:8000';
-
-        // Load logs when page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            loadLogs();
-        });
-
-        // Handle form submission
-        document.getElementById('escalationForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
+        const API_BASE = 'http://localhost:8000';
+        
+        function submitPipelineCheck(event) {
+            event.preventDefault();
+            const ticketId = document.getElementById('pipeline-ticket-id').value;
+            const resultDiv = document.getElementById('pipeline-result');
             
-            const ticketId = document.getElementById('ticketId').value;
-            const conversation = document.getElementById('conversation').value;
-            const submitBtn = document.getElementById('submitBtn');
-            const resultCard = document.getElementById('resultCard');
-            const errorMessage = document.getElementById('errorMessage');
-
-            // Hide previous results and errors
-            resultCard.classList.remove('show');
-            errorMessage.classList.remove('show');
-
-            // Show loading state
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<span class="loading"></span>Analyzing...';
-
-            try {
-                const response = await fetch(`${API_BASE_URL}/escalation/check`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        ticket_id: ticketId,
-                        conversation: conversation
-                    })
-                });
-
-                if (!response.ok) {
-                    throw new Error('Failed to check escalation');
-                }
-
-                const data = await response.json();
-
-                // Display result
-                displayResult(data);
-
-                // Reload logs to show the new entry
-                loadLogs();
-
-            } catch (error) {
-                errorMessage.textContent = 'Error: ' + error.message;
-                errorMessage.classList.add('show');
-            } finally {
-                // Reset button
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = 'Check Escalation';
-            }
-        });
-
-        // Display escalation result
-        function displayResult(data) {
-            const resultCard = document.getElementById('resultCard');
-            const resultBadge = document.getElementById('resultBadge');
-            const resultReason = document.getElementById('resultReason');
-            const resultTicket = document.getElementById('resultTicket');
-
-            if (data.escalate) {
-                resultCard.className = 'result-card show escalate';
-                resultBadge.className = 'badge escalate';
-                resultBadge.textContent = 'ESCALATE';
-            } else {
-                resultCard.className = 'result-card show no-escalate';
-                resultBadge.className = 'badge no-escalate';
-                resultBadge.textContent = 'NO ESCALATION';
-            }
-
-            resultReason.textContent = data.reason;
-            resultTicket.textContent = `Ticket: ${data.ticket_id} | Log ID: ${data.log_id}`;
-        }
-
-        // Load and display logs
-        async function loadLogs() {
-            const tableBody = document.getElementById('logsTableBody');
-
-            try {
-                const response = await fetch(`${API_BASE_URL}/escalation/logs`);
-                
-                if (!response.ok) {
-                    throw new Error('Failed to load logs');
-                }
-
-                const logs = await response.json();
-
-                if (logs.length === 0) {
-                    tableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #94a3b8;">No logs yet</td></tr>';
-                    return;
-                }
-
-                // Display only the last 10 logs
-                const recentLogs = logs.slice(0, 10);
-                
-                tableBody.innerHTML = recentLogs.map(log => {
-                    const escalateClass = log.escalate ? 'escalate' : 'no-escalate';
-                    const escalateText = log.escalate ? 'YES' : 'NO';
-                    const timestamp = new Date(log.created_at).toLocaleString();
-
-                    return `
-                        <tr>
-                            <td><strong>${log.ticket_id}</strong></td>
-                            <td><span class="status-badge ${escalateClass}">${escalateText}</span></td>
-                            <td>${log.reason}</td>
-                            <td style="color: #64748b; font-size: 0.9rem;">${timestamp}</td>
-                        </tr>
+            fetch(`${API_BASE}/escalation/from-ticket`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ticket_id: parseInt(ticketId) })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.detail) {
+                    resultDiv.innerHTML = `<p class="error">Error: ${data.detail}</p>`;
+                } else {
+                    const badgeClass = data.escalate ? 'badge-escalate' : 'badge-no-escalate';
+                    const badgeText = data.escalate ? 'ESCALATE' : 'NO ESCALATION';
+                    resultDiv.innerHTML = `
+                        <p><strong>Result:</strong> <span class="badge ${badgeClass}">${badgeText}</span></p>
+                        <p><strong>Reason:</strong> ${data.reason}</p>
+                        <p><strong>Email:</strong> ${data.email}</p>
+                        <p><strong>Log ID:</strong> ${data.log_id}</p>
                     `;
-                }).join('');
-
-            } catch (error) {
-                tableBody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: #dc2626;">Error loading logs: ${error.message}</td></tr>`;
-            }
+                    loadRecentLogs();
+                }
+                resultDiv.classList.add('show');
+            })
+            .catch(error => {
+                resultDiv.innerHTML = `<p class="error">Error: ${error.message}</p>`;
+                resultDiv.classList.add('show');
+            });
         }
+        
+        function submitManualCheck(event) {
+            event.preventDefault();
+            const ticketId = document.getElementById('manual-ticket-id').value;
+            const email = document.getElementById('manual-email').value;
+            const conversation = document.getElementById('manual-conversation').value;
+            const resultDiv = document.getElementById('manual-result');
+            
+            fetch(`${API_BASE}/escalation/check`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ticket_id: ticketId, email: email, conversation: conversation })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.detail) {
+                    resultDiv.innerHTML = `<p class="error">Error: ${data.detail}</p>`;
+                } else {
+                    const badgeClass = data.escalate ? 'badge-escalate' : 'badge-no-escalate';
+                    const badgeText = data.escalate ? 'ESCALATE' : 'NO ESCALATION';
+                    resultDiv.innerHTML = `
+                        <p><strong>Result:</strong> <span class="badge ${badgeClass}">${badgeText}</span></p>
+                        <p><strong>Reason:</strong> ${data.reason}</p>
+                        <p><strong>Log ID:</strong> ${data.log_id}</p>
+                    `;
+                    loadRecentLogs();
+                }
+                resultDiv.classList.add('show');
+            })
+            .catch(error => {
+                resultDiv.innerHTML = `<p class="error">Error: ${error.message}</p>`;
+                resultDiv.classList.add('show');
+            });
+        }
+        
+        function loadPipelineTrace(event) {
+            event.preventDefault();
+            const email = document.getElementById('trace-email').value;
+            const resultDiv = document.getElementById('trace-result');
+            
+            fetch(`${API_BASE}/pipeline/trace/${encodeURIComponent(email)}`)
+            .then(response => response.json())
+            .then(data => {
+                let html = `<h3>Customer Journey for ${data.email}</h3>`;
+                html += `<p><strong>Total Stages:</strong> ${data.summary.total_stages}</p>`;
+                
+                html += '<div class="timeline">';
+                
+                if (data.leads.length > 0) {
+                    html += '<div class="timeline-item">';
+                    html += '<h3>Stage 1: Leads</h3>';
+                    data.leads.forEach(lead => {
+                        html += `<p>• ${lead.name} (${lead.company}) - Score: ${lead.score}</p>`;
+                    });
+                    html += '</div>';
+                }
+                
+                if (data.followups.length > 0) {
+                    html += '<div class="timeline-item">';
+                    html += '<h3>Stage 2: Followups</h3>';
+                    data.followups.forEach(followup => {
+                        html += `<p>• ${followup.prospect} - ${followup.days_since} days since last interaction</p>`;
+                    });
+                    html += '</div>';
+                }
+                
+                if (data.deals.length > 0) {
+                    html += '<div class="timeline-item">';
+                    html += '<h3>Stage 3: Deals</h3>';
+                    data.deals.forEach(deal => {
+                        html += `<p>• ${deal.prospect} - Stage: ${deal.stage}</p>`;
+                    });
+                    html += '</div>';
+                }
+                
+                if (data.tickets.length > 0) {
+                    html += '<div class="timeline-item">';
+                    html += '<h3>Stage 4: Tickets</h3>';
+                    data.tickets.forEach(ticket => {
+                        html += `<p>• Ticket #${ticket.id} - ${ticket.category} (${ticket.urgency})</p>`;
+                    });
+                    html += '</div>';
+                }
+                
+                if (data.escalation_logs.length > 0) {
+                    html += '<div class="timeline-item">';
+                    html += '<h3>Stage 5: Escalations</h3>';
+                    data.escalation_logs.forEach(log => {
+                        const badge = log.escalate ? 'badge-escalate' : 'badge-no-escalate';
+                        const text = log.escalate ? 'ESCALATED' : 'NOT ESCALATED';
+                        html += `<p>• Ticket #${log.ticket_id} - <span class="badge ${badge}">${text}</span> - ${log.reason}</p>`;
+                    });
+                    html += '</div>';
+                }
+                
+                if (data.summary.total_stages === 0) {
+                    html += '<p>No pipeline data found for this email.</p>';
+                }
+                
+                html += '</div>';
+                resultDiv.innerHTML = html;
+                resultDiv.classList.add('show');
+            })
+            .catch(error => {
+                resultDiv.innerHTML = `<p class="error">Error: ${error.message}</p>`;
+                resultDiv.classList.add('show');
+            });
+        }
+        
+        function loadRecentLogs() {
+            fetch(`${API_BASE}/escalation/logs`)
+            .then(response => response.json())
+            .then(data => {
+                const tbody = document.getElementById('logs-tbody');
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">No logs found</td></tr>';
+                } else {
+                    tbody.innerHTML = data.map(log => {
+                        const badgeClass = log.escalate ? 'badge-escalate' : 'badge-no-escalate';
+                        const badgeText = log.escalate ? 'YES' : 'NO';
+                        const date = new Date(log.created_at).toLocaleString();
+                        return `
+                            <tr>
+                                <td>${log.id}</td>
+                                <td>${log.ticket_id}</td>
+                                <td>${log.email || 'N/A'}</td>
+                                <td><span class="badge ${badgeClass}">${badgeText}</span></td>
+                                <td>${log.reason}</td>
+                                <td>${date}</td>
+                            </tr>
+                        `;
+                    }).join('');
+                }
+            })
+            .catch(error => {
+                const tbody = document.getElementById('logs-tbody');
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #dc2626;">Error loading logs: ${error.message}</td></tr>`;
+            });
+        }
+        
+        // Load logs on page load
+        window.addEventListener('DOMContentLoaded', loadRecentLogs);
     </script>
 </body>
 </html>

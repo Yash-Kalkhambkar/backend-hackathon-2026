@@ -1,40 +1,34 @@
-# Main FastAPI application entry point
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers.escalation import router as escalation_router
-from app.database import init_db
+from app.database import Base, engine
+from app.routers import escalation, pipeline
 
-# Create FastAPI application instance
+# Create tables (checkfirst=True prevents errors if tables exist)
+Base.metadata.create_all(bind=engine, checkfirst=True)
+
 app = FastAPI(
-    title="Escalation Detector API",
-    description="API for detecting support conversation escalations using LLM",
-    version="1.0.0"
+    title="Escalation Detector — Pipeline Edition",
+    version="2.0"
 )
 
-# Configure CORS to allow frontend access from any origin
+# Configure CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
-    allow_headers=["*"],
+    allow_headers=["*"]
 )
 
-# Initialize database tables on startup
-@app.on_event("startup")
-def startup_event():
-    """Initialize database tables when application starts"""
-    init_db()
+# Include routers
+app.include_router(escalation.router, prefix="/escalation", tags=["Escalation"])
+app.include_router(pipeline.router, prefix="/pipeline", tags=["Pipeline"])
 
-# Include escalation router with all endpoints
-app.include_router(escalation_router)
 
-# Root endpoint
 @app.get("/")
 def root():
-    """Root endpoint with API information"""
     return {
-        "message": "Escalation Detector API",
-        "docs": "/docs",
-        "health": "/escalation/health"
+        "message": "Welcome to Escalation Detector — Pipeline Edition (Stage 5)",
+        "version": "2.0",
+        "docs": "/docs"
     }

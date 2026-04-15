@@ -1,37 +1,40 @@
-# Pydantic schemas for request/response validation
 from pydantic import BaseModel
+from typing import Optional, List
 from datetime import datetime
-from typing import Optional
 
 
-class EscalationCheckRequest(BaseModel):
-    """Request schema for checking if a conversation needs escalation"""
+class ManualCheckRequest(BaseModel):
     ticket_id: str
     conversation: str
+    email: str
 
 
-class EscalationCheckResponse(BaseModel):
-    """Response schema after checking escalation"""
+class FromTicketRequest(BaseModel):
+    ticket_id: int
+
+
+class EscalationResponse(BaseModel):
     ticket_id: str
+    email: str
     escalate: bool
     reason: str
     log_id: int
 
 
 class EscalationLogResponse(BaseModel):
-    """Response schema for escalation log entries"""
     id: int
     ticket_id: str
+    conversation: str
     escalate: bool
     reason: str
+    email: Optional[str]
     created_at: datetime
     
     class Config:
         from_attributes = True
 
 
-class EscalationStatsResponse(BaseModel):
-    """Response schema for escalation statistics"""
+class StatsResponse(BaseModel):
     total: int
     escalated: int
     not_escalated: int
@@ -39,7 +42,17 @@ class EscalationStatsResponse(BaseModel):
 
 
 class HealthResponse(BaseModel):
-    """Response schema for health check endpoint"""
     status: str
-    db: str
+    database: str
     llm: str
+
+
+class PipelineTraceResponse(BaseModel):
+    email: str
+    pipeline_stage: str
+    tickets: List[dict]
+    escalation_logs: List[dict]
+    leads: List[dict]
+    followups: List[dict]
+    deals: List[dict]
+    summary: dict
